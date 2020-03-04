@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="top.hhhhhgx.blog.dao.SysAuthorityMapper">
+  <resultMap id="BaseResultMap" type="top.hhhhhgx.blog.entity.SysAuthority">
+    <!--@mbg.generated-->
+    <!--@Table blog.sys_authority-->
+    <id column="auth_id" jdbcType="INTEGER" property="authId" />
+    <result column="auth_name" jdbcType="VARCHAR" property="authName" />
+    <result column="auth_code" jdbcType="VARCHAR" property="authCode" />
+    <result column="auth_isrequired" jdbcType="INTEGER" property="authIsrequired" />
+    <result column="auth_createdate" jdbcType="TIMESTAMP" property="authCreatedate" />
+    <result column="auth_updatedate" jdbcType="TIMESTAMP" property="authUpdatedate" />
+    <result column="auth_info" property="authInfo"/>
+    <result column="auth_menuid" property="authMenuId"/>
+    <collection property="sysRoles" ofType="top.hhhhhgx.blog.entity.SysRoles" javaType="list">
+      <id column="role_id" jdbcType="INTEGER" property="roleId" />
+      <result column="role_name" jdbcType="VARCHAR" property="roleName" />
+      <result column="role_valid" jdbcType="INTEGER" property="roleValid" />
+      <result column="role_createdate" jdbcType="TIMESTAMP" property="roleCreatedate" />
+      <result column="role_updatedate" jdbcType="TIMESTAMP" property="roleUpdatedate" />
+    </collection>
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--@mbg.generated-->
+    auth_id, auth_name, auth_code, auth_isrequired, auth_createdate,
+    auth_updatedate,auth_info,auth_menuid
+  </sql>
+
+  <select id="list" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List"/>
+    from sys_authority
+    <where>
+      <if test="menuId != null and menuId != ''">
+        and auth_menuid = #{menuId}
+      </if>
+      <if test="authCode != null and authCode != ''">
+        and auth_code like concat('%',#{authCode},'%')
+      </if>
+      <if test="authName != null and authName != ''">
+        and auth_name like concat('%',#{authName},'%')
+      </if>
+    </where>
+  </select>
+
+  <select id="getSysAuthority" resultMap="BaseResultMap">
+    select *
+    from sys_authority au
+    left join sys_auth_role sar on au.auth_id = sar.ar_authid
+    left join sys_roles sr on sar.ar_roleid = sr.role_id
+    where au.auth_id = #{id}
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    <!--@mbg.generated-->
+    select 
+    <include refid="Base_Column_List" />
+    from blog.sys_authority
+    where auth_id = #{authId,jdbcType=INTEGER}
+  </select>
+  <delete id="delete">
+    <if test="ids != null and ids.length != 0">
+      delete from blog.sys_authority
+      <where>
+        auth_id in
+        <foreach collection="ids" open="(" close=")" item="i" separator=",">
+          #{i}
+        </foreach>
+      </where>
+    </if>
+  </delete>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    <!--@mbg.generated-->
+    delete from blog.sys_authority
+    where auth_id = #{authId,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" keyColumn="auth_id" keyProperty="authId" parameterType="top.hhhhhgx.blog.entity.dto.AuthDto" useGeneratedKeys="true">
+    <!--@mbg.generated-->
+    insert into blog.sys_authority (auth_name,
+      auth_code, auth_isrequired, auth_createdate, 
+      auth_info,auth_menuid)
+    values (#{authName,jdbcType=VARCHAR},
+      #{authCode,jdbcType=VARCHAR}, #{authIsrequired,jdbcType=INTEGER}, now(),
+      #{authInfo,jdbcType=VARCHAR},#{authMenuId,jdbcType=INTEGER})
+  </insert>
+  <insert id="insertSelective" keyColumn="auth_id" keyProperty="authId" parameterType="top.hhhhhgx.blog.entity.SysAuthority" useGeneratedKeys="true">
+    <!--@mbg.generated-->
+    insert into blog.sys_authority
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="authName != null">
+        auth_name,
+      </if>
+      <if test="authCode != null">
+        auth_code,
+      </if>
+      <if test="authIsrequired != null">
+        auth_isrequired,
+      </if>
+      <if test="authCreatedate != null">
+        auth_createdate,
+      </if>
+      <if test="authUpdatedate != null">
+        auth_updatedate,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="authName != null">
+        #{authName,jdbcType=VARCHAR},
+      </if>
+      <if test="authCode != null">
+        #{authCode,jdbcType=VARCHAR},
+      </if>
+      <if test="authIsrequired != null">
+        #{authIsrequired,jdbcType=INTEGER},
+      </if>
+      <if test="authCreatedate != null">
+        #{authCreatedate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="authUpdatedate != null">
+        #{authUpdatedate,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="top.hhhhhgx.blog.entity.dto.AuthDto">
+    <!--@mbg.generated-->
+    update blog.sys_authority
+    <set>
+      auth_updatedate = now(),
+      <if test="authName != null">
+        auth_name = #{authName,jdbcType=VARCHAR},
+      </if>
+      <if test="authCode != null">
+        auth_code = #{authCode,jdbcType=VARCHAR},
+      </if>
+      <if test="authIsrequired != null">
+        auth_isrequired = #{authIsrequired,jdbcType=INTEGER},
+      </if>
+      <if test="authInfo != null and authInfo != ''">
+        auth_info = #{authInfo,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where auth_id = #{authId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="top.hhhhhgx.blog.entity.SysAuthority">
+    <!--@mbg.generated-->
+    update blog.sys_authority
+    set auth_name = #{authName,jdbcType=VARCHAR},
+      auth_code = #{authCode,jdbcType=VARCHAR},
+      auth_isrequired = #{authIsrequired,jdbcType=INTEGER},
+      auth_createdate = #{authCreatedate,jdbcType=TIMESTAMP},
+      auth_updatedate = #{authUpdatedate,jdbcType=TIMESTAMP}
+    where auth_id = #{authId,jdbcType=INTEGER}
+  </update>
+</mapper>

@@ -1,0 +1,337 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="top.hhhhhgx.blog.dao.SysUserMapper">
+    <resultMap id="BaseResultMap" type="top.hhhhhgx.blog.entity.SysUser">
+        <!--@mbg.generated-->
+        <!--@Table blog.sys_user-->
+        <id column="user_id" jdbcType="INTEGER" property="userId"/>
+        <result column="user_name" jdbcType="VARCHAR" property="userName"/>
+        <result column="user_account" jdbcType="VARCHAR" property="userAccount"/>
+        <result column="user_password" jdbcType="VARCHAR" property="userPassword"/>
+        <result column="user_islogout" jdbcType="INTEGER" property="userIslogout"/>
+        <result column="user_isseal" jdbcType="INTEGER" property="userIsseal"/>
+        <result column="user_email" jdbcType="VARCHAR" property="userEmail"/>
+        <result column="user_phone" jdbcType="VARCHAR" property="userPhone"/>
+        <result column="user_wechatid" jdbcType="VARCHAR" property="userWechatid"/>
+        <result column="user_head" jdbcType="VARCHAR" property="userHead"/>
+        <result column="user_signature" jdbcType="VARCHAR" property="userSignature"/>
+        <result column="user_createdate" jdbcType="TIMESTAMP" property="userCreatedate"/>
+        <result column="user_updatedate" jdbcType="TIMESTAMP" property="userUpdatedate"/>
+        <collection property="sysRoles" ofType="top.hhhhhgx.blog.entity.SysRoles" javaType="list">
+            <id property="roleId" column="role_id"/>
+            <result property="roleName" column="role_name"/>
+            <result property="roleCreatedate" column="role_createdate"/>
+            <result property="roleUpdatedate" column="role_updatedate"/>
+            <result property="roleValid" column="role_valid"/>
+        </collection>
+    </resultMap>
+
+    <resultMap id="loginResultMap" type="top.hhhhhgx.blog.entity.SysUser">
+        <id column="user_id" property="userId"/>
+        <result column="user_name" jdbcType="VARCHAR" property="userName"/>
+        <result column="user_account" jdbcType="VARCHAR" property="userAccount"/>
+        <result column="user_email" jdbcType="VARCHAR" property="userEmail"/>
+        <result column="user_phone" jdbcType="VARCHAR" property="userPhone"/>
+        <result column="user_wechatid" jdbcType="VARCHAR" property="userWechatid"/>
+        <result column="user_head" jdbcType="VARCHAR" property="userHead"/>
+        <result column="user_signature" jdbcType="VARCHAR" property="userSignature"/>
+        <collection property="roles" ofType="string">
+            <result property="roleName" column="role_name"/>
+        </collection>
+        <collection property="sysAuthorities" ofType="string">
+            <result property="authCode" column="auth_code"/>
+        </collection>
+        <collection property="sysMenus" ofType="string">
+            <result column="m_id" property="mId"/>
+        </collection>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        <!--@mbg.generated-->
+        user_id, user_name,user_account, user_password, user_islogout, user_isseal, user_email, user_phone,
+        user_wechatid, user_head, user_signature, user_createdate, user_updatedate
+    </sql>
+
+    <sql id="users">
+        <!--@mbg.generated-->
+        user_id, user_name,user_account, user_islogout, user_isseal, user_email, user_phone,
+        user_wechatid, user_head, user_signature, user_createdate, user_updatedate
+    </sql>
+
+    <delete id="delUserRole" >
+        delete from sys_role_user
+        where ru_userid in
+        <foreach collection="id" item="i" open="(" close=")" separator=",">
+            #{i}
+        </foreach>
+    </delete>
+
+    <select id="getUserAccount" resultType="java.lang.String">
+        select user_account
+        from sys_user
+        where user_id in
+        <foreach collection="id" item="i" open="(" close=")" separator=",">
+            #{i}
+        </foreach>
+    </select>
+
+    <select id="list" resultMap="BaseResultMap">
+        select
+        <include refid="users"/>
+        from sys_user u
+        <where>
+            <if test="account != null and account != ''">
+                and u.user_account like concat(#{account,jdbcType=VARCHAR},'%')
+            </if>
+            <if test="email != null and email != ''">
+                and u.user_email like concat(#{email,jdbcType=VARCHAR},'%')
+            </if>
+            <if test="phone != null and phone != ''">
+                and u.user_phone like concat(#{phone,jdbcType=VARCHAR},'%')
+            </if>
+            <if test="userName != null and userName != ''">
+                and u.user_name like concat(#{userName,jdbcType=VARCHAR},'%')
+            </if>
+            <if test="startTime != null and startTime != '' and endTime != null and endTime != ''">
+                <![CDATA[
+                AND u.user_createdate >= CONCAT(#{startTime})
+                AND u.user_createdate <= CONCAT(#{endTime})
+                ]]>
+            </if>
+        </where>
+        order by u.user_createdate desc
+    </select>
+
+    <select id="getUsers" resultMap="BaseResultMap">
+        select
+        <include refid="users"/>
+        from sys_user u
+        where u.user_account in
+        <foreach collection="accounts" open="(" close=")" separator="," item="a">
+            #{a}
+        </foreach>
+    </select>
+
+    <select id="getUserAuth" resultMap="loginResultMap">
+        select *
+        from sys_user su
+        left join sys_role_user sru on su.user_id = sru.ru_userid
+        left join sys_roles sr on sru.ru_roleid = sr.role_id
+        left join sys_auth_role sar on sr.role_id = sar.ar_roleid
+        left join sys_authority sa on sar.ar_authid = sa.auth_id
+        left join sys_menus sm on sa.auth_menuid = sm.m_id
+        where su.user_account = #{account,jdbcType=VARCHAR}
+    </select>
+
+    <select id="login" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from sys_user s
+        where s.user_account = #{account,jdbcType=VARCHAR} and s.user_password = #{password,jdbcType=VARCHAR}
+        and s.user_islogout = 0 and s.user_isseal = 0
+    </select>
+
+    <select id="getUserInfo" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from sys_user s
+        where s.user_account = #{account,jdbcType=VARCHAR}
+    </select>
+
+    <select id="getUser" resultMap="BaseResultMap">
+        select *
+        from sys_user su
+        left join sys_role_user sru on su.user_id = sru.ru_userid
+        left join sys_roles sr on sru.ru_roleid = sr.role_id
+        where user_id = #{id}
+    </select>
+
+    <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        <!--@mbg.generated-->
+        select
+        <include refid="Base_Column_List"/>
+        from blog.sys_user
+        where user_id = #{userId,jdbcType=INTEGER}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+        <!--@mbg.generated-->
+        delete from blog.sys_user
+        where user_id in
+        <foreach collection="array" separator="," open="(" close=")" item="i">
+            #{i}
+        </foreach>
+    </delete>
+    <insert id="insert" keyColumn="user_id" keyProperty="userId" parameterType="top.hhhhhgx.blog.entity.dto.UserDto"
+            useGeneratedKeys="true">
+        <!--@mbg.generated-->
+        insert into sys_user (user_name, user_password, user_islogout,
+        user_isseal, user_email, user_phone,
+        user_wechatid, user_head, user_signature,
+        user_createdate,user_account)
+        values (#{userName,jdbcType=VARCHAR}, #{userPassword,jdbcType=VARCHAR}, #{userIslogout,jdbcType=INTEGER},
+        #{userIsseal,jdbcType=INTEGER}, #{userEmail,jdbcType=VARCHAR}, #{userPhone,jdbcType=VARCHAR},
+        #{userWechatid,jdbcType=VARCHAR}, #{userHead,jdbcType=VARCHAR}, #{userSignature,jdbcType=VARCHAR},
+        now(),#{userAccount,jdbcType=VARCHAR})
+    </insert>
+    <insert id="insertSelective" keyColumn="user_id" keyProperty="userId"
+            parameterType="top.hhhhhgx.blog.entity.dto.UserDto" useGeneratedKeys="true">
+        <!--@mbg.generated-->
+        insert into blog.sys_user
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="true">
+                user_createdate,
+            </if>
+            <if test="userName != null">
+                user_name,
+            </if>
+            <if test="userAccount != null and userAccount != ''">
+                user_account,
+            </if>
+            <if test="userPassword != null">
+                user_password,
+            </if>
+            <if test="userIslogout != null">
+                user_islogout,
+            </if>
+            <if test="userIsseal != null">
+                user_isseal,
+            </if>
+            <if test="userEmail != null">
+                user_email,
+            </if>
+            <if test="userPhone != null">
+                user_phone,
+            </if>
+            <if test="userWechatid != null">
+                user_wechatid,
+            </if>
+            <if test="userHead != null">
+                user_head,
+            </if>
+            <if test="userSignature != null">
+                user_signature,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="true">
+                now(),
+            </if>
+            <if test="userName != null">
+                #{userName,jdbcType=VARCHAR},
+            </if>
+            <if test="userAccount != null and userAccount != ''">
+                #{userAccount,jdbcType=VARCHAR},
+            </if>
+            <if test="userPassword != null">
+                #{userPassword,jdbcType=VARCHAR},
+            </if>
+            <if test="userIslogout != null">
+                #{userIslogout,jdbcType=INTEGER},
+            </if>
+            <if test="userIsseal != null">
+                #{userIsseal,jdbcType=INTEGER},
+            </if>
+            <if test="userEmail != null">
+                #{userEmail,jdbcType=VARCHAR},
+            </if>
+            <if test="userPhone != null">
+                #{userPhone,jdbcType=VARCHAR},
+            </if>
+            <if test="userWechatid != null">
+                #{userWechatid,jdbcType=VARCHAR},
+            </if>
+            <if test="userHead != null">
+                #{userHead,jdbcType=VARCHAR},
+            </if>
+            <if test="userSignature != null">
+                #{userSignature,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="top.hhhhhgx.blog.entity.dto.UserDto">
+        <!--@mbg.generated-->
+        update blog.sys_user
+        <set>
+            <if test="userName != null">
+                user_name = #{userName,jdbcType=VARCHAR},
+            </if>
+            <if test="userIslogout != null">
+                user_islogout = #{userIslogout,jdbcType=INTEGER},
+            </if>
+            <if test="userIsseal != null">
+                user_isseal = #{userIsseal,jdbcType=INTEGER},
+            </if>
+            <if test="userEmail != null">
+                user_email = #{userEmail,jdbcType=VARCHAR},
+            </if>
+            <if test="userPhone != null">
+                user_phone = #{userPhone,jdbcType=VARCHAR},
+            </if>
+            <if test="userWechatid != null">
+                user_wechatid = #{userWechatid,jdbcType=VARCHAR},
+            </if>
+            <if test="userHead != null">
+                user_head = #{userHead,jdbcType=VARCHAR},
+            </if>
+            <if test="userSignature != null">
+                user_signature = #{userSignature,jdbcType=VARCHAR},
+            </if>
+            <if test="userUpdatedate != null">
+                user_updatedate = now(),
+            </if>
+        </set>
+        where user_id = #{userId,jdbcType=INTEGER}
+    </update>
+
+    <update id="updateByAccount" parameterType="top.hhhhhgx.blog.entity.dto.UserDto">
+        <!--@mbg.generated-->
+        update blog.sys_user
+        <set>
+            <if test="userName != null">
+                user_name = #{userName,jdbcType=VARCHAR},
+            </if>
+            <if test="userIslogout != null">
+                user_islogout = #{userIslogout,jdbcType=INTEGER},
+            </if>
+            <if test="userIsseal != null">
+                user_isseal = #{userIsseal,jdbcType=INTEGER},
+            </if>
+            <if test="userEmail != null">
+                user_email = #{userEmail,jdbcType=VARCHAR},
+            </if>
+            <if test="userPhone != null">
+                user_phone = #{userPhone,jdbcType=VARCHAR},
+            </if>
+            <if test="userWechatid != null">
+                user_wechatid = #{userWechatid,jdbcType=VARCHAR},
+            </if>
+            <if test="userHead != null">
+                user_head = #{userHead,jdbcType=VARCHAR},
+            </if>
+            <if test="userSignature != null">
+                user_signature = #{userSignature,jdbcType=VARCHAR},
+            </if>
+            <if test="userUpdatedate != null">
+                user_updatedate = now(),
+            </if>
+        </set>
+        where user_account = #{userAccount}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="top.hhhhhgx.blog.entity.SysUser">
+        <!--@mbg.generated-->
+        update blog.sys_user
+        set user_name = #{userName,jdbcType=VARCHAR},
+        user_password = #{userPassword,jdbcType=VARCHAR},
+        user_islogout = #{userIslogout,jdbcType=INTEGER},
+        user_isseal = #{userIsseal,jdbcType=INTEGER},
+        user_email = #{userEmail,jdbcType=VARCHAR},
+        user_phone = #{userPhone,jdbcType=VARCHAR},
+        user_wechatid = #{userWechatid,jdbcType=VARCHAR},
+        user_head = #{userHead,jdbcType=VARCHAR},
+        user_signature = #{userSignature,jdbcType=VARCHAR},
+        user_createdate = #{userCreatedate,jdbcType=TIMESTAMP},
+        user_updatedate = #{userUpdatedate,jdbcType=TIMESTAMP}
+        where user_id = #{userId,jdbcType=INTEGER}
+    </update>
+</mapper>

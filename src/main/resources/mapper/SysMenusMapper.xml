@@ -1,0 +1,328 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="top.hhhhhgx.blog.dao.SysMenusMapper">
+    <resultMap id="BaseResultMap" type="top.hhhhhgx.blog.entity.SysMenus">
+        <!--@mbg.generated-->
+        <!--@Table blog.sys_menus-->
+        <id column="m_id" jdbcType="INTEGER" property="mId"/>
+        <result column="m_name" jdbcType="VARCHAR" property="mName"/>
+        <result column="m_parentid" jdbcType="INTEGER" property="mParentid"/>
+        <result column="m_code" jdbcType="VARCHAR" property="mCode"/>
+        <result column="m_url" jdbcType="VARCHAR" property="mUrl"/>
+        <result column="m_icon" jdbcType="VARCHAR" property="mIcon"/>
+        <result column="m_isvalid" jdbcType="INTEGER" property="mIsvalid"/>
+        <result column="m_order" jdbcType="INTEGER" property="mOrder"/>
+        <result column="m_info" jdbcType="VARCHAR" property="mInfo"/>
+        <result column="m_createdate" jdbcType="TIMESTAMP" property="mCreatedate"/>
+        <result column="m_updatedate" jdbcType="TIMESTAMP" property="mUpdatedate"/>
+        <result property="mAlwaysShow" column="m_alwaysshow"/>
+        <result property="mComponent" column="m_component"/>
+        <result property="mHidden" column="m_hidden"/>
+        <result property="mRedirect" column="m_redirect"/>
+        <result property="mBreadcrumb" column="m_breadcrumb"/>
+        <result property="mNoCache" column="m_nocache"/>
+        <result property="mTitle" column="m_title"/>
+        <collection property="menus" ofType="top.hhhhhgx.blog.entity.SysMenus">
+            <id column="mid" jdbcType="INTEGER" property="mId"/>
+            <result column="mname" jdbcType="VARCHAR" property="mName"/>
+            <result column="mparentid" jdbcType="INTEGER" property="mParentid"/>
+            <result column="mcode" jdbcType="VARCHAR" property="mCode"/>
+            <result column="murl" jdbcType="VARCHAR" property="mUrl"/>
+            <result column="micon" jdbcType="VARCHAR" property="mIcon"/>
+            <result column="misvalid" jdbcType="INTEGER" property="mIsvalid"/>
+            <result column="morder" jdbcType="INTEGER" property="mOrder"/>
+            <result column="minfo" jdbcType="VARCHAR" property="mInfo"/>
+            <result column="mcreatedate" jdbcType="TIMESTAMP" property="mCreatedate"/>
+            <result column="mupdatedate" jdbcType="TIMESTAMP" property="mUpdatedate"/>
+            <result property="mAlwaysShow" column="malwaysshow"/>
+            <result property="mComponent" column="mcomponent"/>
+            <result property="mHidden" column="mhidden"/>
+            <result property="mRedirect" column="mredirect"/>
+            <result property="mBreadcrumb" column="mbreadcrumb"/>
+            <result property="mNoCache" column="mnocache"/>
+            <result property="mTitle" column="mtitle"/>
+        </collection>
+    </resultMap>
+
+    <resultMap id="RoutesMap" type="top.hhhhhgx.blog.entity.dto.Routes">
+        <id column="m_id" property="id"/>
+        <result property="alwaysShow" column="m_alwaysshow"/>
+        <result property="component1" column="m_component"/>
+        <result property="hidden" column="m_hidden"/>
+        <result property="name" column="m_name"/>
+        <result property="path" column="m_url"/>
+        <result property="redirect" column="m_redirect"/>
+        <association property="meta" javaType="top.hhhhhgx.blog.entity.dto.Meta">
+            <result property="breadcrumb" column="m_breadcrumb"/>
+            <result property="icon" column="m_icon"/>
+            <result property="noCache" column="m_nocache"/>
+            <result property="title" column="m_title"/>
+        </association>
+        <collection property="children" ofType="top.hhhhhgx.blog.entity.dto.Routes">
+            <id column="mid" property="id"/>
+            <result property="alwaysShow" column="malwaysshow"/>
+            <result property="component1" column="mcomponent"/>
+            <result property="hidden" column="mhidden"/>
+            <result property="name" column="mname"/>
+            <result property="path" column="murl"/>
+            <result property="redirect" column="redirect"/>
+            <association property="meta" javaType="top.hhhhhgx.blog.entity.dto.Meta">
+                <result property="breadcrumb" column="mbreadcrumb"/>
+                <result property="icon" column="micon"/>
+                <result property="noCache" column="mnocache"/>
+                <result property="title" column="mtitle"/>
+            </association>
+        </collection>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        <!--@mbg.generated-->
+        m_id, m_name, m_parentid, m_code, m_url, m_icon, m_isvalid, m_order, m_info, m_createdate,
+        m_updatedate
+    </sql>
+
+    <sql id="list1">
+        <!--@mbg.generated-->
+        sm1.m_id, sm1.m_name, sm1.m_parentid, sm1.m_code, sm1.m_url, sm1.m_icon, sm1.m_isvalid, sm1.m_order, sm1.m_info,
+        sm1.m_createdate,sm1.m_updatedate,sm1.m_hidden,sm1.m_alwaysshow,sm1.m_breadcrumb,sm1.m_component,sm1.m_nocache
+        ,sm1.m_redirect,sm1.m_title
+    </sql>
+    <sql id="list2">
+        <!--@mbg.generated-->
+        sm2.m_id mid, sm2.m_name mname, sm2.m_parentid mparentid, sm2.m_code mcode, sm2.m_url murl
+        , sm2.m_icon micon, sm2.m_isvalid misvalid, sm2.m_order morder, sm2.m_info minfo, sm2.m_createdate mcreatedate
+        ,sm2.m_updatedate mupdatedate,sm2.m_hidden mhidden,sm2.m_alwaysshow malwaysshow,sm2.m_breadcrumb mbreadcrumb
+        ,sm2.m_component mcomponent,sm2.m_nocache mnocache,sm2.m_redirect mredirect,sm2.m_title mtitle
+    </sql>
+
+    <delete id="delete">
+        delete from sys_menus
+        where m_id in
+        <foreach collection="ids" item="i" separator="," open="(" close=")">
+            #{i}
+        </foreach>
+    </delete>
+
+    <select id="listByUser" resultMap="RoutesMap">
+        SELECT
+        <include refid="list1"/>,
+        <include refid="list2"/>
+        FROM
+        sys_menus sm1
+        LEFT JOIN
+        sys_menus sm2
+        on sm2.m_parentid = sm1.m_id and sm2.m_isvalid = 0
+        and sm2.m_id in
+        <foreach collection="ids" open="(" close=")" separator="," item="i">
+            #{i}
+        </foreach>
+        WHERE
+        sm1.m_parentid = 0
+        and sm1.m_isvalid = 0
+        and (sm1.m_id in
+        <foreach collection="ids" open="(" close=")" separator="," item="i">
+            #{i}
+        </foreach>
+        or sm2.m_id in
+        <foreach collection="ids" open="(" close=")" separator="," item="i">
+            #{i}
+        </foreach>
+        )
+        order by
+        sm1.m_order,
+        sm2.m_order
+    </select>
+
+    <select id="list" resultMap="BaseResultMap">
+        SELECT
+        <include refid="list1"/>,
+        <include refid="list2"/>
+        FROM
+        sys_menus sm1
+        LEFT JOIN
+        sys_menus sm2
+        on sm2.m_parentid = sm1.m_id
+        <if test="mName != null and mName != ''">
+            and sm2.m_name like concat('%',#{mName},'%')
+        </if>
+        <if test="mIsvalid != null and mIsvalid != ''">
+            and sm2.m_isvalid = #{mIsvalid}
+        </if>
+        WHERE
+        sm1.m_parentid = 0
+        <if test="mName != null and mName != ''">
+            and (sm1.m_name like concat('%',#{mName},'%') or sm2.m_name like concat('%',#{mName},'%') )
+        </if>
+        <if test="mIsvalid != null and mIsvalid != ''">
+            and sm1.m_isvalid = #{mIsvalid}
+        </if>
+        order by
+        sm1.m_order,
+        sm2.m_order
+    </select>
+
+    <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        <!--@mbg.generated-->
+        select
+        <include refid="Base_Column_List"/>
+        from blog.sys_menus
+        where m_id = #{mId,jdbcType=INTEGER}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+        <!--@mbg.generated-->
+        delete from blog.sys_menus
+        where m_id = #{mId,jdbcType=INTEGER}
+    </delete>
+    <insert id="insert" keyColumn="m_id" keyProperty="mId" parameterType="top.hhhhhgx.blog.entity.SysMenus"
+            useGeneratedKeys="true">
+        <!--@mbg.generated-->
+        insert into blog.sys_menus (m_name, m_parentid, m_code,
+        m_url, m_icon, m_isvalid,
+        m_order, m_info, m_createdate,m_redirect,m_hidden,
+        m_alwaysshow,m_title,m_nocache,m_breadcrumb,m_component)
+        values (#{mName,jdbcType=VARCHAR}, #{mParentid,jdbcType=INTEGER}, #{mCode,jdbcType=VARCHAR},
+        #{mUrl,jdbcType=VARCHAR}, #{mIcon,jdbcType=VARCHAR}, #{mIsvalid,jdbcType=INTEGER},
+        #{mOrder,jdbcType=INTEGER}, #{mInfo,jdbcType=VARCHAR}, now(),#{mRedirect,jdbcType=VARCHAR},#{mHidden,jdbcType=INTEGER},
+        #{mAlwaysShow,jdbcType=INTEGER},#{mTitle,jdbcType=VARCHAR},#{mNoCache,jdbcType=INTEGER},
+        #{mBreadcrumb,jdbcType=INTEGER},#{mComponent,jdbcType=VARCHAR})
+    </insert>
+    <insert id="insertSelective" keyColumn="m_id" keyProperty="mId" parameterType="top.hhhhhgx.blog.entity.SysMenus"
+            useGeneratedKeys="true">
+        <!--@mbg.generated-->
+        insert into blog.sys_menus
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="mName != null">
+                m_name,
+            </if>
+            <if test="mParentid != null">
+                m_parentid,
+            </if>
+            <if test="mCode != null">
+                m_code,
+            </if>
+            <if test="mUrl != null">
+                m_url,
+            </if>
+            <if test="mIcon != null">
+                m_icon,
+            </if>
+            <if test="mIsvalid != null">
+                m_isvalid,
+            </if>
+            <if test="mOrder != null">
+                m_order,
+            </if>
+            <if test="mInfo != null">
+                m_info,
+            </if>
+            <if test="mCreatedate != null">
+                m_createdate,
+            </if>
+            <if test="mUpdatedate != null">
+                m_updatedate,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="mName != null">
+                #{mName,jdbcType=VARCHAR},
+            </if>
+            <if test="mParentid != null">
+                #{mParentid,jdbcType=INTEGER},
+            </if>
+            <if test="mCode != null">
+                #{mCode,jdbcType=VARCHAR},
+            </if>
+            <if test="mUrl != null">
+                #{mUrl,jdbcType=VARCHAR},
+            </if>
+            <if test="mIcon != null">
+                #{mIcon,jdbcType=VARCHAR},
+            </if>
+            <if test="mIsvalid != null">
+                #{mIsvalid,jdbcType=INTEGER},
+            </if>
+            <if test="mOrder != null">
+                #{mOrder,jdbcType=INTEGER},
+            </if>
+            <if test="mInfo != null">
+                #{mInfo,jdbcType=VARCHAR},
+            </if>
+            <if test="mCreatedate != null">
+                #{mCreatedate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="mUpdatedate != null">
+                #{mUpdatedate,jdbcType=TIMESTAMP},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="top.hhhhhgx.blog.entity.dto.Menus">
+        <!--@mbg.generated-->
+        update sys_menus
+        <set>
+            <if test="true">
+                m_updatedate = now(),
+            </if>
+            <if test="mName != null">
+                m_name = #{mName,jdbcType=VARCHAR},
+            </if>
+            <!--<if test="mParentid != null">
+                m_parentid = #{mParentid,jdbcType=INTEGER},
+            </if>-->
+            <if test="mCode != null">
+                m_code = #{mCode,jdbcType=VARCHAR},
+            </if>
+            <if test="mUrl != null">
+                m_url = #{mUrl,jdbcType=VARCHAR},
+            </if>
+            <if test="mIcon != null">
+                m_icon = #{mIcon,jdbcType=VARCHAR},
+            </if>
+            <if test="mIsvalid != null">
+                m_isvalid = #{mIsvalid,jdbcType=INTEGER},
+            </if>
+            <if test="mOrder != null">
+                m_order = #{mOrder,jdbcType=INTEGER},
+            </if>
+            <if test="mInfo != null">
+                m_info = #{mInfo,jdbcType=VARCHAR},
+            </if>
+            <if test="mRedirect != null and mRedirect != ''">
+                m_redirect = #{mRedirect,jdbcType=VARCHAR},
+            </if>
+            <if test="mHidden != null">
+                m_hidden = #{mHidden,jdbcType=INTEGER},
+            </if>
+            <if test="mAlwaysShow != null">
+                m_alwaysshow = #{mAlwaysShow,jdbcType=INTEGER},
+            </if>
+            <if test="mTitle != null and mTitle != ''">
+                m_title = #{mTitle,jdbcType=VARCHAR},
+            </if>
+            <if test="mNoCache != null">
+                m_nocache = #{mNoCache,jdbcType=INTEGER},
+            </if>
+            <if test="mBreadcrumb != null">
+                m_breadcrumb = #{mBreadcrumb,jdbcType=INTEGER},
+            </if>
+            <if test="mComponent != null and mComponent != ''">
+                m_component = #{mComponent,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where m_id = #{mId,jdbcType=INTEGER}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="top.hhhhhgx.blog.entity.SysMenus">
+        <!--@mbg.generated-->
+        update blog.sys_menus
+        set m_name = #{mName,jdbcType=VARCHAR},
+        m_parentid = #{mParentid,jdbcType=INTEGER},
+        m_code = #{mCode,jdbcType=VARCHAR},
+        m_url = #{mUrl,jdbcType=VARCHAR},
+        m_icon = #{mIcon,jdbcType=VARCHAR},
+        m_isvalid = #{mIsvalid,jdbcType=INTEGER},
+        m_order = #{mOrder,jdbcType=INTEGER},
+        m_info = #{mInfo,jdbcType=VARCHAR},
+        m_createdate = #{mCreatedate,jdbcType=TIMESTAMP},
+        m_updatedate = #{mUpdatedate,jdbcType=TIMESTAMP}
+        where m_id = #{mId,jdbcType=INTEGER}
+    </update>
+</mapper>

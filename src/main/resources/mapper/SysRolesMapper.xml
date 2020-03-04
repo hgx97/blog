@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="top.hhhhhgx.blog.dao.SysRolesMapper">
+  <resultMap id="BaseResultMap" type="top.hhhhhgx.blog.entity.SysRoles">
+    <!--@mbg.generated-->
+    <!--@Table blog.sys_roles-->
+    <id column="role_id" jdbcType="INTEGER" property="roleId" />
+    <result column="role_name" jdbcType="VARCHAR" property="roleName" />
+    <result column="role_valid" jdbcType="INTEGER" property="roleValid" />
+    <result column="role_createdate" jdbcType="TIMESTAMP" property="roleCreatedate" />
+    <result column="role_updatedate" jdbcType="TIMESTAMP" property="roleUpdatedate" />
+    <result column="role_info" property="roleInfo"/>
+    <collection property="sysAuthorities" ofType="top.hhhhhgx.blog.entity.SysAuthority" javaType="list">
+      <id column="auth_id" jdbcType="INTEGER" property="authId" />
+      <result column="auth_name" jdbcType="VARCHAR" property="authName" />
+      <result column="auth_code" jdbcType="VARCHAR" property="authCode" />
+      <result column="auth_isrequired" jdbcType="INTEGER" property="authIsrequired" />
+      <result column="auth_createdate" jdbcType="TIMESTAMP" property="authCreatedate" />
+      <result column="auth_updatedate" jdbcType="TIMESTAMP" property="authUpdatedate" />
+    </collection>
+    <collection property="sysUsers" ofType="top.hhhhhgx.blog.entity.SysUser" javaType="list">
+      <id column="user_id" jdbcType="INTEGER" property="userId"/>
+      <result column="user_name" jdbcType="VARCHAR" property="userName"/>
+      <result column="user_account" jdbcType="VARCHAR" property="userAccount"/>
+      <result column="user_password" jdbcType="VARCHAR" property="userPassword"/>
+      <result column="user_islogout" jdbcType="INTEGER" property="userIslogout"/>
+      <result column="user_isseal" jdbcType="INTEGER" property="userIsseal"/>
+      <result column="user_email" jdbcType="VARCHAR" property="userEmail"/>
+      <result column="user_phone" jdbcType="VARCHAR" property="userPhone"/>
+      <result column="user_wechatid" jdbcType="VARCHAR" property="userWechatid"/>
+      <result column="user_head" jdbcType="VARCHAR" property="userHead"/>
+      <result column="user_signature" jdbcType="VARCHAR" property="userSignature"/>
+      <result column="user_createdate" jdbcType="TIMESTAMP" property="userCreatedate"/>
+      <result column="user_updatedate" jdbcType="TIMESTAMP" property="userUpdatedate"/>
+    </collection>
+  </resultMap>
+
+  <resultMap id="roleMap" type="top.hhhhhgx.blog.entity.SysRoles">
+    <id column="role_id" jdbcType="INTEGER" property="roleId" />
+    <result column="role_name" jdbcType="VARCHAR" property="roleName" />
+    <result column="role_valid" jdbcType="INTEGER" property="roleValid" />
+    <result column="role_createdate" jdbcType="TIMESTAMP" property="roleCreatedate" />
+    <result column="role_updatedate" jdbcType="TIMESTAMP" property="roleUpdatedate" />
+    <result column="role_info" property="roleInfo"/>
+   <!-- <collection property="authIds" ofType="java.lang.Integer">
+      <result property="value" column="auth_id"/>
+    </collection>
+    <collection property="menuIds" ofType="java.lang.Integer">
+      <result property="value" column="auth_menuid"/>
+    </collection>-->
+  </resultMap>
+
+  <resultMap id="roleAuthMap" type="top.hhhhhgx.blog.entity.vo.RoleAuths">
+    <result property="name" column="name"/>
+    <collection property="menuId" ofType="java.lang.Integer">
+      <result column="auth_menuid" property="value"/>
+    </collection>
+    <collection property="authIds" ofType="top.hhhhhgx.blog.entity.vo.AuthMenu">
+      <result property="authId" column="auth_id"/>
+      <result property="menuId" column="auth_menuid"/>
+    </collection>
+  </resultMap>
+  
+  <resultMap id="userRoleMap" type="top.hhhhhgx.blog.entity.vo.UserRoles">
+    <id column="role_id" jdbcType="INTEGER" property="roleId" />
+    <result column="role_name" jdbcType="VARCHAR" property="roleName" />
+    <result column="role_valid" jdbcType="INTEGER" property="roleValid" />
+    <result column="role_info" property="roleInfo"/>
+  </resultMap>
+
+  <sql id="Base_Column_List">
+    <!--@mbg.generated-->
+    role_id, role_name, role_valid, role_createdate, role_updatedate,role_info
+  </sql>
+
+  <delete id="deleteUserRoles">
+    delete from sys_role_user
+    where ru_userid = #{userId}
+  </delete>
+
+  <insert id="addUserRoles">
+    insert into sys_role_user (ru_roleid, ru_userid, ru_createdate)
+    values
+    <foreach collection="roleIds" separator=","  item="i">
+      (#{i},#{userId},now())
+    </foreach>
+  </insert>
+
+  <select id="getUserRoles" resultType="integer">
+    select ru_roleid
+    from sys_role_user sru
+    left join sys_roles sr on sr.role_id = sru.ru_roleid
+    where ru_userid = #{userId} and sr.role_valid = #{roleValid}
+  </select>
+
+  <select id="listRoles" resultMap="userRoleMap">
+    select
+    <include refid="Base_Column_List"/>
+    from sys_roles
+    where role_valid = #{roleValid}
+  </select>
+
+    <delete id="deleteRoleAuth">
+        delete from sys_auth_role
+        <where>
+          ar_roleid in
+          <foreach collection="roleId" separator="," open="(" close=")" item="i">
+            #{i}
+          </foreach>
+        </where>
+    </delete>
+
+    <insert id="addRoleAuth">
+        insert into sys_auth_role (ar_authid, ar_roleid, ar_createdate)
+        values
+        <foreach collection="authIds" item="i" separator=",">
+            (#{i},#{roleId},now())
+        </foreach>
+    </insert>
+
+  <!--<select id="list" resultMap="roleMap">
+    SELECT sr.role_id,sr.role_name,sr.role_valid,sr.role_createdate,sr.role_updatedate,sa.auth_menuid,sa.auth_id
+    FROM sys_roles sr
+    LEFT JOIN sys_auth_role ar on ar.ar_roleid = sr.role_id
+    LEFT JOIN sys_authority sa on sa.auth_id = ar.ar_authid
+    <where>
+      <if test="roleName != null and roleName != ''">
+        sr.role_name like concat(#{roleName},'%')
+      </if>
+    </where>
+  </select>-->
+
+  <select id="getRoleAuth" resultMap="roleAuthMap">
+    SELECT sa.auth_id,sa.auth_menuid, '权限' as name
+    FROM sys_authority sa
+    LEFT JOIN sys_auth_role ar on ar.ar_authid = sa.auth_id
+    WHERE ar.ar_roleid = #{roleId,jdbcType=INTEGER} and sa.auth_isrequired = 0
+    <if test="menuId != null">
+      and sa.auth_menuid = #{menuId,jdbcType=INTEGER}
+    </if>
+  </select>
+
+  <select id="list" resultMap="roleMap">
+    SELECT sr.role_id,sr.role_name,sr.role_valid,sr.role_createdate,sr.role_updatedate,sr.role_info
+    FROM sys_roles sr
+    <where>
+      <if test="roleName != null and roleName != ''">
+        sr.role_name like concat(#{roleName},'%')
+      </if>
+    </where>
+  </select>
+
+  <select id="getRoles" resultMap="BaseResultMap">
+    select *
+    from sys_roles
+    left join sys_auth_role sar on sys_roles.role_id = sar.ar_roleid
+    left join sys_authority sa on sar.ar_authid = sa.auth_id
+    where role_id = #{id}
+  </select>
+
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    <!--@mbg.generated-->
+    select 
+    <include refid="Base_Column_List" />
+    from blog.sys_roles
+    where role_id = #{roleId,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    <!--@mbg.generated-->
+    delete from blog.sys_roles
+    where role_id = #{roleId,jdbcType=INTEGER}
+  </delete>
+  <delete id="delete">
+    <if test="ids != null and ids.length != 0">
+      delete from blog.sys_roles
+      <where>
+        role_id in
+        <foreach collection="ids" separator="," open="(" close=")" item="i">
+          #{i}
+        </foreach>
+      </where>
+    </if>
+  </delete>
+  <insert id="insert" keyColumn="role_id" keyProperty="roleId" parameterType="top.hhhhhgx.blog.entity.SysRoles" useGeneratedKeys="true">
+    <!--@mbg.generated-->
+    insert into blog.sys_roles (role_name, role_valid, role_createdate,role_info)
+    values (#{roleName,jdbcType=VARCHAR}, #{roleValid,jdbcType=INTEGER}, now(),#{roleInfo,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" keyColumn="role_id" keyProperty="roleId" parameterType="top.hhhhhgx.blog.entity.SysRoles" useGeneratedKeys="true">
+    <!--@mbg.generated-->
+    insert into blog.sys_roles
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="roleName != null">
+        role_name,
+      </if>
+      <if test="roleValid != null">
+        role_valid,
+      </if>
+      <if test="roleCreatedate != null">
+        role_createdate,
+      </if>
+      <if test="roleUpdatedate != null">
+        role_updatedate,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="roleName != null">
+        #{roleName,jdbcType=VARCHAR},
+      </if>
+      <if test="roleValid != null">
+        #{roleValid,jdbcType=INTEGER},
+      </if>
+      <if test="roleCreatedate != null">
+        #{roleCreatedate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="roleUpdatedate != null">
+        #{roleUpdatedate,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="top.hhhhhgx.blog.entity.SysRoles">
+    <!--@mbg.generated-->
+    update blog.sys_roles
+    <set>
+      <if test="roleName != null">
+        role_name = #{roleName,jdbcType=VARCHAR},
+      </if>
+      <if test="roleValid != null">
+        role_valid = #{roleValid,jdbcType=INTEGER},
+      </if>
+      <if test="true">
+        role_updatedate = now(),
+      </if>
+      <if test="roleInfo != null and roleInfo != ''">
+        role_info = #{roleInfo,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where role_id = #{roleId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="top.hhhhhgx.blog.entity.SysRoles">
+    <!--@mbg.generated-->
+    update blog.sys_roles
+    set role_name = #{roleName,jdbcType=VARCHAR},
+      role_valid = #{roleValid,jdbcType=INTEGER},
+      role_createdate = #{roleCreatedate,jdbcType=TIMESTAMP},
+      role_updatedate = #{roleUpdatedate,jdbcType=TIMESTAMP}
+    where role_id = #{roleId,jdbcType=INTEGER}
+  </update>
+</mapper>
