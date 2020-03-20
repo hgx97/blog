@@ -1,5 +1,6 @@
 package top.hhhhhgx.blog.controller;
 
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import top.hhhhhgx.blog.common.result.Result;
@@ -21,42 +22,42 @@ public class RolesController {
     private RolesService rolesService;
 
     @GetMapping
-    //@RequiresPermissions("role:list")
+    @RequiresPermissions("role:list")
     public Result list(String roleName, Integer pageNum, Integer pageSize) {
         if (pageNum == null || pageSize == null) return ResultUtil.notParm();
         return rolesService.list(roleName, pageNum, pageSize);
     }
 
     @GetMapping("/{roleId}/auth")
-    //@RequiresPermissions("role:auth")
+    @RequiresPermissions("role:auth")
     public Result getRoleAuth(@PathVariable("roleId") Integer roleId,Integer menuId) {
         if (roleId == null) return ResultUtil.notParm();
         return rolesService.getRoleAuth(roleId, menuId);
     }
 
     @PostMapping
-    //@RequiresPermissions("role:add")
+    @RequiresPermissions("role:add")
     public Result add(SysRoles roles) {
         if (roles.isNull()) return ResultUtil.notParm();
         return rolesService.add(roles);
     }
 
     @PutMapping
-    //@RequiresPermissions("role:update")
+    @RequiresPermissions("role:update")
     public Result update(SysRoles roles) {
         if (roles.getRoleId() == null) return ResultUtil.notParm();
         return rolesService.update(roles);
     }
 
     @DeleteMapping
-    //@RequiresPermissions("role:delete")
+    @RequiresPermissions("role:delete")
     public Result delete(String[] ids) {
         if (ids == null) return ResultUtil.notParm();
         return rolesService.delete(ids);
     }
 
     @PostMapping("/{roleId}/auth")
-    //@RequiresPermissions("role:addAuth")
+    @RequiresPermissions("role:addAuth")
     public Result addRoleAuth(@PathVariable("roleId") Integer roleId, Integer[] authIds){
         if (roleId == null) return ResultUtil.notParm();
         return rolesService.addRoleAuth(roleId, authIds);

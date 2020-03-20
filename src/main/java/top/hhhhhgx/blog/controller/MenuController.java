@@ -1,6 +1,7 @@
 package top.hhhhhgx.blog.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -33,7 +34,7 @@ public class MenuController {
     * @Date: 2020/2/8
     */ 
     @GetMapping
-    //@RequiresPermissions("menu:list")
+    @RequiresPermissions("menu:list")
     public Result list(String mName, String mIsvalid){
         return menuService.list(mName,mIsvalid);
     }
@@ -46,7 +47,7 @@ public class MenuController {
     * @Date: 2020/2/8
     */ 
     @PostMapping
-    //@RequiresPermissions("menu:add")
+    @RequiresPermissions("menu:add")
     public Result add(SysMenus menus){
         if (menus.isNull()) return ResultUtil.fail(ResultCode.FAIL,"请输入需要的参数");
         return menuService.add(menus);
@@ -60,7 +61,7 @@ public class MenuController {
     * @Date: 2020/2/8
     */ 
     @PutMapping
-    //@RequiresPermissions("menu:update")
+    @RequiresPermissions("menu:update")
     public Result update(Menus menus){
         if (menus.getmId() == null) return ResultUtil.fail(ResultCode.FAIL,"请输入id");
         return menuService.update(menus);
@@ -74,7 +75,7 @@ public class MenuController {
     * @Date: 2020/2/9
     */ 
     @DeleteMapping
-    //@RequiresPermissions("menu:delete")
+    @RequiresPermissions("menu:delete")
     public Result delete(String[] ids){
         if (StringUtils.isEmpty(ids)) return ResultUtil.fail(ResultCode.FAIL,"请输入id");
         return menuService.delete(ids);

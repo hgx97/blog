@@ -50,7 +50,7 @@ public class UserController {
      * @Date: 2020/2/3
      */
     @GetMapping
-    //@RequiresPermissions("user:list")
+    @RequiresPermissions("user:list")
     public Result list(String account, String userName, String phone
             , String email, String startTime, String endTime, Integer pageNum, Integer pageSize) {
         if (pageNum == null || pageSize == null) {
@@ -67,7 +67,7 @@ public class UserController {
      * @Date: 2020/2/3
      */
     @GetMapping(value = "/{id}")
-    //@RequiresPermissions("user:getUserById")
+    @RequiresPermissions("user:getUserById")
     public Result getUserById(@PathVariable("id") Integer id) throws ClientException {
         if (id == null) {
             return ResultUtil.fail(ResultCode.FAIL, "请输入id");
@@ -83,7 +83,7 @@ public class UserController {
      * @Date: 2020/2/3
      */
     @PatchMapping(value = "/{id}")
-    //@RequiresPermissions("user:update")
+    @RequiresPermissions("user:update")
     public Result updateUser(UserDto userDto, @PathVariable("id") Integer id) {
         if (id == null) return ResultUtil.fail(ResultCode.FAIL, "请输入id");
         userDto.setUserId(id);
@@ -98,7 +98,7 @@ public class UserController {
      * @Date: 2020/2/3
      */
     @DeleteMapping
-    //@RequiresPermissions("user:delete")
+    @RequiresPermissions("user:delete")
     public Result deleteUser(Integer[] id) {
         if (id == null || id.length == 0) return ResultUtil.fail(ResultCode.FAIL, "请输入id");
         return userService.deleteUser(id);
@@ -114,7 +114,7 @@ public class UserController {
     }
 
     @GetMapping(value = "/info")
-    //@RequiresPermissions("user:info")
+    @RequiresPermissions("user:info")
     public Result getUserInfoAuth(HttpServletRequest request) {
         String token = request.getHeader(ShiroConstants.AUTHORIZATION);
         if (!StringUtils.isEmpty(token)) {
@@ -133,7 +133,7 @@ public class UserController {
     }
 
     @PostMapping
-    //@RequiresPermissions("user:add")
+    @RequiresPermissions("user:add")
     public Result addUser(UserDto userDto){
         if (StringUtils.isEmpty(userDto.getUserAccount())
                 || StringUtils.isEmpty(userDto.getUserName())
@@ -145,14 +145,14 @@ public class UserController {
     }
 
     @GetMapping(value = "/role")
-    //@RequiresPermissions("user:getUserRole")
+    @RequiresPermissions("user:getUserRole")
     public Result getUserRole(Integer id){
         if (id == null) return ResultUtil.notParm();
         return userService.getUserRole(id);
     }
 
     @PostMapping(value = "/role")
-    //@RequiresPermissions("user:addUserRole")
+    @RequiresPermissions("user:addUserRole")
     public Result addUserRole(Integer[] roleIds,Integer userId){
         if (userId == null) return ResultUtil.notParm();
         return userService.addUserRole(roleIds, userId);
