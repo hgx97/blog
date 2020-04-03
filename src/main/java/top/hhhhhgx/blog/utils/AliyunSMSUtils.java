@@ -22,9 +22,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class AliyunSMSUtils {
 
-    private static String accessKeyId = "LTAI4FxFWwThtTvu1Rpy5KPm";
+    private static String accessKeyId = "";
 
-    private static String accessSecret = "3CXBKOUlSw5MlSVPovja3CdCk5xLbR";
+    private static String accessSecret = "";
 
     private static String signName = "小星星blog";
 
